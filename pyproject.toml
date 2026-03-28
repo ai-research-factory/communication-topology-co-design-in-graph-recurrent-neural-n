@@ -1,0 +1,6 @@
+[project]
+name = "communication-topology-co-design-in-graph-recurrent-neural-n"
+version = "0.1.0"
+description = "Communication Topology Co-Design in Graph Recurrent Neural Network Based Distributed Control"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "scikit-learn", "torch", "matplotlib", "tqdm"]
