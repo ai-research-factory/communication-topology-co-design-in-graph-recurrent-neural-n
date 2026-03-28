@@ -7,7 +7,7 @@ proj_c589ff16
 GNN
 
 ## Current Cycle
-2
+3
 
 ## Objective
 Implement, validate, and iteratively improve the paper's approach with production-quality standards.
@@ -71,31 +71,28 @@ df = df.set_index("timestamp")
 
 
 
-## ★ 今回のタスク (Cycle 2)
+## ★ 今回のタスク (Cycle 3)
 
 
-### Phase 2: 複合損失関数と学習ループの実装 [Track ]
+### Phase 3: 評価フレームワークとベースライン指標の実装 [Track ]
 
 **Track**:  (A=論文再現 / B=近傍改善 / C=独自探索)
-**ゴール**: 性能損失とL1正則化項を組み合わせた複合損失関数を用いて、完全な学習ループを実装する。
+**ゴール**: 学習済みモデルの性能とグラフのスパース性を測定する評価フレームワークを実装する。
 
 **具体的な作業指示**:
-1. `src/training.py`に`train_epoch`関数を実装する。この関数は、シミュレーションエピソードを複数回実行する。
-2. 各エピソード内で、`GRNNController`をTタイムステップにわたって展開し、状態の軌跡を記録する。
-3. 性能損失を計算する。例：全エージェントの状態がその平均値（コンセンサス目標）からどれだけ離れているかの二乗誤差の総和。
-4. 複合損失を `loss = performance_loss + lambda * torch.norm(model.A, p=1)` として計算する。
-5. `loss.backward()`を呼び出し、オプティマイザでモデルの重みと隣接行列`A`を更新する。
-6. `scripts/train.py`を作成し、この学習プロセスを実行するCLIを実装する。学習中の損失と隣接行列のL1ノルムをログに出力する。
+1. `src/evaluation.py`に`evaluate_model`関数を実装する。この関数は、学習済みの`GRNNController`と環境を入力として受け取る。
+2. 未知の初期状態から評価エピソードを複数回実行する。
+3. 評価指標として、(a)最終的なコンセンサス誤差（エピソード終了時の状態の標準偏差）と(b)グラフのスパース性（隣接行列`A`の要素のうち、閾値（例: 1e-3）以下の割合）を計算する。
+4. `scripts/evaluate.py`を作成し、保存されたモデルをロードして評価を実行し、結果をJSONファイルに出力するCLIを実装する。
 
 **期待される出力ファイル**:
-- src/training.py
-- scripts/train.py
-- reports/cycle_2/training_log.txt
+- src/evaluation.py
+- scripts/evaluate.py
+- reports/cycle_3/evaluation_metrics.json
 
 **受入基準 (これを全て満たすまで完了としない)**:
-- 学習ループがエラーなく完了する
-- 訓練損失がエポックを通じて減少傾向を示す
-- 隣接行列`A`のL1ノルムが学習の進行とともに変化する
+- `evaluate_model`がコンセンサス誤差とスパース性を計算できる
+- `evaluation_metrics.json`に誤差とスパース性の両方が記録されている
 
 
 
@@ -117,8 +114,8 @@ df = df.set_index("timestamp")
 ## 全体Phase計画 (参考)
 
 ✓ Phase 1: 環境とGRNNコアモデルの実装 — エージェントのダイナミクスをシミュレートする環境と、学習可能な隣接行列を持つ基本的なGRNNモデルを実装する。
-→ Phase 2: 複合損失関数と学習ループの実装 — 性能損失とL1正則化項を組み合わせた複合損失関数を用いて、完全な学習ループを実装する。
-  Phase 3: 評価フレームワークとベースライン指標の実装 — 学習済みモデルの性能とグラフのスパース性を測定する評価フレームワークを実装する。
+✓ Phase 2: 複合損失関数と学習ループの実装 — 性能損失とL1正則化項を組み合わせた複合損失関数を用いて、完全な学習ループを実装する。
+→ Phase 3: 評価フレームワークとベースライン指標の実装 — 学習済みモデルの性能とグラフのスパース性を測定する評価フレームワークを実装する。
   Phase 4: 性能-スパース性トレードオフ曲線の再現 — L1正則化係数λを変化させてモデルの学習と評価を繰り返し、論文の中心的な結果である性能対スパース性のトレードオフ曲線をプロットする。
   Phase 5: GRNNハイパーパラメータ最適化 — Optunaを用いて、固定されたスパース性レベルでの性能を最大化するGRNNのハイパーパラメータ（隠れ層の次元、学習率）を探索する。
   Phase 6: システム規模に対するロバスト性検証 — 学習時と異なるエージェント数でモデルを評価し、学習した制御ポリシーの般化性能を検証する。
@@ -175,8 +172,8 @@ df = df.set_index("timestamp")
 
 ## 出力ファイル
 以下のファイルを保存してから完了すること:
-- `reports/cycle_2/metrics.json` — 下記スキーマに従う（必須）
-- `reports/cycle_2/technical_findings.md` — 実装内容、結果、観察事項
+- `reports/cycle_3/metrics.json` — 下記スキーマに従う（必須）
+- `reports/cycle_3/technical_findings.md` — 実装内容、結果、観察事項
 
 ### metrics.json 必須スキーマ
 ```json
